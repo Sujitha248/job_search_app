@@ -57,11 +57,11 @@ st.pyplot(fig)
 from prophet import Prophet
 import matplotlib.pyplot as plt
 
-st.subheader("🔮 Skill Demand Forecast (Next 6 Months)")
+st.subheader("🔮 Skill Demand Forecast ")
 
 # ✅ Extract all skills from 'Key Skills' column
-if 'Skills' in df.columns:
-    skill_series = df['Skills'].dropna().str.lower().str.split(', ')
+if 'skills' in df.columns:
+    skill_series = df['skills'].dropna().str.lower().str.split(', ')
     flat_skills = [skill.strip() for sublist in skill_series for skill in sublist]
     unique_skills = sorted(set(flat_skills))
 
@@ -69,7 +69,7 @@ if 'Skills' in df.columns:
     selected_skill = st.selectbox("Select a skill to forecast:", unique_skills)
 
     # ✅ Prepare time series for selected skill
-    skill_df = df[df['Skills'].str.contains(selected_skill, case=False, na=False)].copy()
+    skill_df = df[df['skills'].str.contains(selected_skill, case=False, na=False)].copy()
     skill_df['Post Date'] = pd.to_datetime(skill_df['Post Date'], errors='coerce')
     skill_df.dropna(subset=['Post Date'], inplace=True)
 
@@ -92,4 +92,4 @@ if 'Skills' in df.columns:
     else:
         st.warning(f"No postings found for skill: {selected_skill}")
 else:
-    st.error("❌ 'Skills' column not found in dataset.")
+    st.error("❌ 'skills' column not found in dataset.")
