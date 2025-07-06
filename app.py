@@ -70,11 +70,11 @@ if 'skills' in df.columns:
 
     # ✅ Prepare time series for selected skill
     skill_df = df[df['skills'].str.contains(selected_skill, case=False, na=False)].copy()
-    skill_df['Post Date'] = pd.to_datetime(skill_df['Post Date'], errors='coerce')
-    skill_df.dropna(subset=['Post Date'], inplace=True)
+    skill_df['postdate'] = pd.to_datetime(skill_df['postdate'], errors='coerce')
+    skill_df.dropna(subset=['postdate'], inplace=True)
 
     if not skill_df.empty:
-        skill_df['Month'] = skill_df['Post Date'].dt.to_period('M').astype(str)
+        skill_df['Month'] = skill_df['postdate'].dt.to_period('M').astype(str)
         monthly_trend = skill_df.groupby('Month').size().reset_index(name='Count')
         monthly_trend.rename(columns={'Month': 'ds', 'Count': 'y'}, inplace=True)
         monthly_trend['ds'] = pd.to_datetime(monthly_trend['ds'])
