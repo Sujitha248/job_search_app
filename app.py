@@ -61,7 +61,7 @@ except: df = load_fallback()
 
 if not df.empty: 
     # Clean and select 
-    columns columns_to_keep = [ 'employer_name', 'job_title', 'job_city', 'job_country', 'job_posted_at_datetime_utc', 'job_apply_link', 'job_required_skills' ] 
+    columns_to_keep = [ 'employer_name', 'job_title', 'job_city', 'job_country', 'job_posted_at_datetime_utc', 'job_apply_link', 'job_required_skills' ] 
     df = df[[col for col in columns_to_keep if col in df.columns]]
 
 # Format date
