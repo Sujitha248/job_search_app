@@ -1,13 +1,15 @@
-import streamlit as st
 import requests
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from prophet import Prophet
+import streamlit as st
 
-# ------------------ Streamlit Setup ------------------
-st.set_page_config(page_title="Job Explorer", layout="wide")
-st.title("💼 Real-Time Job Search with Skills & Trends")
+st.set_page_config(
+    page_title="Real-Time Job Explorer",
+    page_icon="🧭",
+    layout="wide"
+)
 
 # ------------------ Session State Init ------------------
 if "job_data" not in st.session_state:

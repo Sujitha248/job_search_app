@@ -7,6 +7,3 @@ backgroundColor = "#f5f5f5"
 secondaryBackgroundColor = "#ffffff"
 textColor = "#262730"
 font = "sans serif"
-
-[client]
-title = "Real-Time Job Explorer"
