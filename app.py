@@ -39,9 +39,9 @@ else:
 def load_fallback(): 
     if os.path.exists(FALLBACK_FILE): 
         return pd.read_csv(FALLBACK_FILE) 
-        else: 
-            st.warning("⚠ API failed and no fallback data is available.") 
-            return pd.DataFrame()
+    else: 
+        st.warning("⚠ API failed and no fallback data is available.") 
+        return pd.DataFrame()
 
 def save_fallback(df): 
     df.to_csv(FALLBACK_FILE, index=False)
