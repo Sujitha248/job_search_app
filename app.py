@@ -55,7 +55,8 @@ try:
         save_fallback(df) 
     else: 
         df = load_fallback() 
-except: df = load_fallback()
+except: 
+    df = load_fallback()
 
 #If data exists, show output
 
