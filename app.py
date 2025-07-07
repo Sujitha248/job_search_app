@@ -10,6 +10,7 @@ st.set_page_config(
     page_icon="🧭",
     layout="wide"
 )
+st.title("🧭Real-Time Job Explorer") 
 
 # ------------------ Session State Init ------------------
 if "job_data" not in st.session_state:
