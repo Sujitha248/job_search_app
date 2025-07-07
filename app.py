@@ -1,24 +1,23 @@
 import streamlit as st
-import requests
 import pandas as pd
-import seaborn as sns
+import requests
 import matplotlib.pyplot as plt
+import seaborn as sns
 import os
 
-# Page configuration
 st.set_page_config(page_title="Real-Time Job Explorer", layout="wide")
-st.title("Real-Time Job Explorer")
+st.title("🔍 Real-Time Job Explorer")
 
-# Input fields
-st.sidebar.header("Search Filters")
+# Sidebar Inputs
 job_query = st.sidebar.text_input("Enter Job Title", "")
 location_query = st.sidebar.text_input("Enter Location", "India")
+selected_skill = st.sidebar.text_input("Filter by Skill (optional)")
 
-# Optional: Add fallback filename
+# Fallback CSV
 FALLBACK_FILE = "fallback_jobs.csv"
 
-# --- Functions ---
-def fetch_jobs_from_api(query, location):
+# Function to fetch jobs from API
+def fetch_jobs(query, location):
     url = "https://jsearch.p.rapidapi.com/search"
     querystring = {"query": f"{query} in {location}", "num_pages": "3"}
 
@@ -29,59 +28,74 @@ def fetch_jobs_from_api(query, location):
 
     response = requests.get(url, headers=headers, params=querystring)
     if response.status_code == 200:
-        data = response.json()
-        return data.get("data", [])
+        return response.json().get("data", [])
     else:
-        raise ValueError(f"API Error: {response.status_code}")
+        raise ValueError("API error")
 
+# Function to load fallback
 def load_fallback():
     if os.path.exists(FALLBACK_FILE):
         return pd.read_csv(FALLBACK_FILE)
     else:
-        st.warning("⚠ API failed and no fallback data is available.")
+        st.warning("⚠ No fallback data found.")
         return pd.DataFrame()
 
+# Function to save fallback
 def save_fallback(df):
     df.to_csv(FALLBACK_FILE, index=False)
 
-# Fetch or load data
+# Try to load from API, else fallback
 try:
-    jobs_data = fetch_jobs_from_api(job_query, location_query)
-    if jobs_data:
-        df = pd.DataFrame(jobs_data)
+    jobs = fetch_jobs(job_query, location_query)
+    df = pd.DataFrame(jobs)
+    if not df.empty:
         save_fallback(df)
-    else:
-        df = load_fallback()
 except:
+    st.warning("⚠ Using fallback data (API failed).")
     df = load_fallback()
 
-# Display
+# Display and filter results
 if not df.empty:
-    # Filter columns
-    columns_to_keep = [
-        'employer_name', 'job_title', 'job_city', 'job_country',
-        'job_posted_at_datetime_utc', 'job_apply_link', 'job_required_skills'
-    ]
-    df = df[[col for col in columns_to_keep if col in df.columns]]
-
-    # Format date
     if 'job_posted_at_datetime_utc' in df.columns:
-        df['job_posted_at_datetime_utc'] = pd.to_datetime(
-            df['job_posted_at_datetime_utc']).dt.date
+        df['job_posted_at_datetime_utc'] = pd.to_datetime(df['job_posted_at_datetime_utc']).dt.date
 
-    st.subheader(f"Showing {len(df)} jobs for '{job_query}' in '{location_query}'")
-    st.dataframe(df, use_container_width=True)
+    if 'job_required_skills' in df.columns:
+        df['job_required_skills'] = df['job_required_skills'].fillna("N/A")
 
-    # --- Skills Analysis ---
-    if 'job_required_skills' in df.columns and df['job_required_skills'].notna().any():
-        skills_series = df['job_required_skills'].dropna().str.split(', ').explode()
-        top_skills = skills_series.value_counts().head(10)
+    if selected_skill:
+        df = df[df['job_required_skills'].str.contains(selected_skill, case=False, na=False)]
 
-        st.subheader("Top Required Skills")
-        fig, ax = plt.subplots()
-        sns.barplot(x=top_skills.values, y=top_skills.index, palette="coolwarm", ax=ax)
-        ax.set_xlabel("Demand Count")
-        ax.set_ylabel("Skill")
-        st.pyplot(fig)
+    st.subheader(f"Found {len(df)} jobs for '{job_query}' in '{location_query}'")
+    st.dataframe(df[['employer_name', 'job_title', 'job_city', 'job_country', 'job_posted_at_datetime_utc', 'job_required_skills', 'job_apply_link']], use_container_width=True)
+
+    # Job count by city
+    if 'job_city' in df.columns:
+        city_count = df['job_city'].value_counts().head(10)
+        st.subheader("📍 Top Cities by Job Count")
+        fig1, ax1 = plt.subplots()
+        sns.barplot(x=city_count.values, y=city_count.index, palette="viridis", ax=ax1)
+        ax1.set_xlabel("Number of Jobs")
+        ax1.set_ylabel("City")
+        st.pyplot(fig1)
+
+    # Top required skills
+    if 'job_required_skills' in df.columns:
+        skill_series = df['job_required_skills'].str.split(', ').explode().value_counts().head(10)
+        st.subheader("💼 Top In-Demand Skills")
+        fig2, ax2 = plt.subplots()
+        sns.barplot(x=skill_series.values, y=skill_series.index, palette="coolwarm", ax=ax2)
+        ax2.set_xlabel("Frequency")
+        ax2.set_ylabel("Skill")
+        st.pyplot(fig2)
+
+    # Job count by date
+    if 'job_posted_at_datetime_utc' in df.columns:
+        date_count = df['job_posted_at_datetime_utc'].value_counts().sort_index()
+        st.subheader("📆 Job Postings Over Time")
+        fig3, ax3 = plt.subplots()
+        date_count.plot(kind='bar', ax=ax3)
+        ax3.set_xlabel("Date")
+        ax3.set_ylabel("Number of Postings")
+        st.pyplot(fig3)
 else:
-    st.error("No job data available to display.")
+    st.error("No job data available.")
