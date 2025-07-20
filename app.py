@@ -6,28 +6,23 @@ import seaborn as sns
 from prophet import Prophet
 import os
 
-# ------------------ Fallback File Path ------------------
-# This ensures fallback_jobs.csv is saved in the same folder as app.py
-APP_DIR = os.path.dirname(os.path.abspath(__file__))
-FALLBACK_FILE = os.path.join(APP_DIR, "fallback_jobs.csv")
+# Detect if running on Streamlit Cloud or local machine
+if platform.system() == "Windows":  
+    # Local path for your laptop
+    FALLBACK_FILE = r"C:\Users\Raghul S\Downloads\job_search_app\job_search_app\fallback_jobs.csv"
+else:
+    # Streamlit Cloud path
+    FALLBACK_FILE = "fallback_jobs.csv"
 
 # ------------------ Fallback Functions ------------------
 def save_fallback(df):
-    try:
-        df.to_csv(FALLBACK_FILE, index=False)
-        st.success(f"Fallback file updated! Saved to: {FALLBACK_FILE}")
-    except Exception as e:
-        st.error(f"Error saving fallback file: {e}")
+    df.to_csv(FALLBACK_FILE, index=False)
+    st.success(f"Fallback file updated at: {FALLBACK_FILE}")
 
 def load_fallback():
-    try:
-        if os.path.exists(FALLBACK_FILE):
-            return pd.read_csv(FALLBACK_FILE)
-        else:
-            st.warning("No fallback file found yet.")
-            return pd.DataFrame()
-    except Exception as e:
-        st.error(f"Error loading fallback file: {e}")
+    if os.path.exists(FALLBACK_FILE):
+        return pd.read_csv(FALLBACK_FILE)
+    else:
         return pd.DataFrame()
 # ------------------ Streamlit Setup ------------------
 st.set_page_config(page_title="Real-Time Job Explorer", layout="wide")
