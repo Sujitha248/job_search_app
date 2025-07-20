@@ -8,13 +8,10 @@ import os
 import platform
 
 # Detect if running on Streamlit Cloud or local machine
-if platform.system() == "Windows":  
-    # Local path for your laptop
-    FALLBACK_FILE = r"C:\Users\Raghul S\Downloads\job_search_app\job_search_app\fallback_jobs.csv"
+if platform.system() == "Windows":
+    FALLBACK_FILE = os.path.join(os.path.expanduser("~"), "Documents", "fallback_jobs.csv")
 else:
-    # Streamlit Cloud path
     FALLBACK_FILE = "fallback_jobs.csv"
-
 # ------------------ Fallback Functions ------------------
 def save_fallback(df):
     df.to_csv(FALLBACK_FILE, index=False)
