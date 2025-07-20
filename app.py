@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from prophet import Prophet
 import os
+import platform
 
 # Detect if running on Streamlit Cloud or local machine
 if platform.system() == "Windows":  
