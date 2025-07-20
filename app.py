@@ -15,7 +15,7 @@ FALLBACK_FILE = "fallback_jobs.csv"
 
 def save_fallback(df):
     df.to_csv(FALLBACK_FILE, index=False)
-
+    st.success("Fallback file updated!")
 def load_fallback():
     if os.path.exists(FALLBACK_FILE):
         return pd.read_csv(FALLBACK_FILE)
