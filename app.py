@@ -8,7 +8,7 @@ import os
 
 # ------------------ Fallback File Path ------------------
 # This ensures fallback_jobs.csv is saved in the same folder as app.py
-APP_DIR = os.path.dirname(os.path.abspath(_file_))
+APP_DIR = os.path.dirname(os.path.abspath(__file__))
 FALLBACK_FILE = os.path.join(APP_DIR, "fallback_jobs.csv")
 
 # ------------------ Fallback Functions ------------------
